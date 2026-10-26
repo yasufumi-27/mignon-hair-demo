@@ -103,7 +103,8 @@ document.addEventListener('click',e=>{
 });
 document.addEventListener('change',e=>{
  const el=e.target;
- if(el.name==='category'||el.id==='search-category'){chooseCategory(el.value);return}
+ if(el.name==='category'){chooseCategory(el.value);return}
+ if(el.id==='search-category'){state.category=el.value;state.genre='all';state.page=1;render();return}
  if(el.name==='color'){state.colors=$$('[name=color]:checked').map(x=>x.value);state.page=1;render();return}
  if(['genre','price','sort','stock'].includes(el.id)){state[el.id]=el.id==='stock'?el.checked:el.value;state.page=1;render();return}
  if(el.dataset.compare){const id=Number(el.dataset.compare);if(el.checked){if(compared.length===3){el.checked=false;toast('比較は3点まで選択できます');return}compared.push(id)}else compared=compared.filter(x=>x!==id);renderCompareBar()}
