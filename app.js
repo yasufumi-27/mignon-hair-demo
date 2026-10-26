@@ -1,27 +1,120 @@
-const genres=['シュシュ','カチューシャ','ヘアクリップ','バレッタ','ヘアゴム','ヘアピン'];
-const colors={'ベージュ':'#c8ad8b','ブラック':'#454541','ピンク':'#c99c9c','ホワイト':'#e5e1d8','ブラウン':'#87664c','グリーン':'#8b9981'};
-const products=[
-[1,'ふんわりサテンシュシュ','シュシュ',880,'ベージュ',true,'BEST'],[2,'パールライン カチューシャ','カチューシャ',1680,'ホワイト',true,'NEW'],[3,'マットカラー バンスクリップ','ヘアクリップ',1280,'グリーン',true,'BEST'],[4,'オーガンジー リボンシュシュ','シュシュ',1100,'ピンク',true,'NEW'],[5,'べっ甲スクエア バレッタ','バレッタ',1480,'ブラウン',true,''],[6,'ツイストメタル ヘアゴム','ヘアゴム',780,'ベージュ',true,''],[7,'ベロア ワイドカチューシャ','カチューシャ',1980,'ブラック',true,''],[8,'ミニパール ヘアピンセット','ヘアピン',980,'ホワイト',true,'NEW'],[9,'フラワー ヘアクリップ','ヘアクリップ',1380,'ピンク',true,''],[10,'リネン ナチュラルシュシュ','シュシュ',990,'グリーン',true,''],[11,'リボン ロングバレッタ','バレッタ',1580,'ブラック',false,''],[12,'くるみボタン ヘアゴム','ヘアゴム',680,'ブラウン',true,''],[13,'マーブル スリムヘアピン','ヘアピン',880,'ベージュ',true,''],[14,'サテン ノットカチューシャ','カチューシャ',1780,'ピンク',true,''],[15,'クリア ミニクリップセット','ヘアクリップ',1180,'ホワイト',false,''],[16,'シフォン ボリュームシュシュ','シュシュ',1280,'ホワイト',true,'']
-].map(([id,name,genre,price,color,stock,tag])=>({id,name,genre,price,color,stock,tag,image:`assets/product-${id}.svg`}));
-const $=s=>document.querySelector(s);const yen=n=>'¥'+n.toLocaleString('ja-JP');
-function restore(key,fallback){try{return JSON.parse(localStorage.getItem(key))??fallback}catch{return fallback}}
-let favorites=restore('mignon-favorites',[]);if(!Array.isArray(favorites))favorites=[];favorites=favorites.filter(id=>products.some(p=>p.id===id));
-let cart=restore('mignon-cart',{});if(!cart||typeof cart!=='object'||Array.isArray(cart))cart={};cart=Object.fromEntries(Object.entries(cart).filter(([id,q])=>products.some(p=>p.id===+id&&p.stock)&&Number.isInteger(q)&&q>0&&q<=20));
-let genre='all',favoriteOnly=false;const searchParams=new URLSearchParams(location.search);if(genres.includes(searchParams.get('genre')))genre=searchParams.get('genre');$('#search').value=searchParams.get('q')||'';
-function save(){try{localStorage.setItem('mignon-favorites',JSON.stringify(favorites));localStorage.setItem('mignon-cart',JSON.stringify(cart))}catch{toast('このブラウザでは保存できません。今回の操作中のみ保持します。')}$('#cart-count').textContent=Object.values(cart).reduce((a,b)=>a+b,0)}
-function toast(message){$('#toast').textContent=message;$('#toast').classList.add('show');clearTimeout(toast.timer);toast.timer=setTimeout(()=>$('#toast').classList.remove('show'),2500)}
-$('#category-grid').innerHTML=genres.map(g=>{const p=products.find(p=>p.genre===g);return `<button data-category="${g}"><img src="${p.image}" alt="" loading="lazy">${g}<span aria-hidden="true"> →</span></button>`}).join('');
-$('#genre-filters').innerHTML=['all',...genres].map(g=>`<label><input type="radio" name="genre" value="${g}" ${genre===g?'checked':''}>${g==='all'?'ヘアアクセサリー全件':g}</label>`).join('');
-$('#color-filters').innerHTML=Object.entries(colors).map(([name,color])=>`<label><input type="checkbox" name="color" value="${name}"><span class="swatch" style="background:${color};margin:0 6px 0 0"></span>${name}</label>`).join('');
-function render(){const query=$('#search').value.trim().toLowerCase();const selectedColors=[...document.querySelectorAll('[name=color]:checked')].map(x=>x.value);const max=$('#price').value;let list=products.filter(p=>(genre==='all'||p.genre===genre)&&(!query||query.split(/\s+/).every(word=>(p.name+p.genre+p.color).toLowerCase().includes(word)))&&(!selectedColors.length||selectedColors.includes(p.color))&&(max==='all'||p.price<=+max)&&(!$('#in-stock').checked||p.stock)&&(!favoriteOnly||favorites.includes(p.id)));
-const sort=$('#sort').value;if(sort==='low')list.sort((a,b)=>a.price-b.price);if(sort==='high')list.sort((a,b)=>b.price-a.price);if(sort==='new')list.sort((a,b)=>b.id-a.id);
-$('#catalog-title').textContent=favoriteOnly?'お気に入り':genre==='all'?'すべてのヘアアクセサリー':genre;$('#result-count').textContent=`${list.length} 件の商品 / 全 ${products.length} 件`;$('#empty').hidden=!!list.length;$('#active-filters').textContent=[query?`検索：${query}`:'',genre!=='all'?genre:'',...selectedColors,max!=='all'?`${yen(+max)}以下`:'',$('#in-stock').checked?'在庫あり':'',favoriteOnly?'お気に入りのみ':''].filter(Boolean).join(' / ');
-$('#products').innerHTML=list.map(p=>`<article class="product"><button class="product-image" data-detail="${p.id}" aria-label="${p.name}の詳細"><img src="${p.image}" alt="${p.name}のイメージイラスト" loading="lazy">${p.tag?`<span class="tag">${p.tag}</span>`:''}${!p.stock?'<span class="tag">SOLD OUT</span>':''}</button><button class="heart ${favorites.includes(p.id)?'selected':''}" data-favorite="${p.id}" aria-label="${p.name}をお気に入り${favorites.includes(p.id)?'から削除':'に追加'}" aria-pressed="${favorites.includes(p.id)}">${favorites.includes(p.id)?'♥':'♡'}</button><p class="genre">${p.genre}</p><h3><button data-detail="${p.id}" style="padding:0;text-align:left">${p.name}</button></h3><p class="price">${yen(p.price)}<small>税込・サンプル</small></p><span class="swatch" style="background:${colors[p.color]}"></span><span class="muted" style="font-size:9px">${p.color}</span></article>`).join('');
-const params=new URLSearchParams();if(genre!=='all')params.set('genre',genre);if(query)params.set('q',query);history.replaceState(null,'',location.pathname+(params.size?'?'+params:'')+location.hash);$('#favorite-toggle').setAttribute('aria-pressed',String(favoriteOnly));}
-function chooseGenre(g){genre=g;document.querySelectorAll('[name=genre]').forEach(x=>x.checked=x.value===g);favoriteOnly=false;render();$('#catalog').scrollIntoView({behavior:'smooth'})}
-function reset(){genre='all';favoriteOnly=false;$('#search').value='';$('#price').value='all';$('#sort').value='recommended';$('#in-stock').checked=false;document.querySelectorAll('[name=color]').forEach(x=>x.checked=false);document.querySelector('[name=genre][value=all]').checked=true;render()}
-function detail(id){const p=products.find(p=>p.id===id);$('#detail-content').innerHTML=`<div class="detail-grid"><img src="${p.image}" alt="${p.name}のイメージイラスト"><div><p class="eyebrow">${p.genre}</p><h2>${p.name}</h2><p style="font-size:24px">${yen(p.price)} <small class="muted">税込・サンプル</small></p><p>毎日のヘアアレンジに、さりげないアクセント。<br>カラー：${p.color}</p><p class="muted">デモ商品です。素材・サイズ・価格・在庫は本番販売用の情報ではありません。</p><label>数量 <select id="quantity">${[1,2,3,4,5].map(n=>`<option>${n}</option>`).join('')}</select></label><button class="primary" data-add="${p.id}" ${p.stock?'':'disabled'}>${p.stock?'デモカートに入れる':'在庫なし（サンプル）'}</button></div></div>`;$('#detail').showModal()}
-function renderCart(){const entries=Object.entries(cart);$('#cart-content').innerHTML=entries.length?entries.map(([id,q])=>{const p=products.find(p=>p.id===+id);return `<div class="cart-row"><img src="${p.image}" alt=""><div>${p.name}<p class="muted">${yen(p.price)} × ${q}</p></div><div><button data-quantity="${id}" data-delta="-1" aria-label="${p.name}の数量を減らす">−</button>${q}<button data-quantity="${id}" data-delta="1" aria-label="${p.name}の数量を増やす" ${q>=20?'disabled':''}>＋</button><button data-remove="${id}" aria-label="${p.name}をカートから削除">削除</button></div></div>`}).join('')+`<div class="cart-total"><span>商品合計（税込）</span><strong>${yen(entries.reduce((sum,[id,q])=>sum+products.find(p=>p.id===+id).price*q,0))}</strong></div><p class="muted">送料・決済機能は未設定です。このデモでは購入できません。</p>`:'<p style="padding:35px 0">カートは空です。商品詳細からアイテムを追加できます。</p>'}
-document.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.category)chooseGenre(b.dataset.category);if(b.dataset.nav)chooseGenre(b.dataset.nav);if(b.dataset.detail)detail(+b.dataset.detail);if(b.dataset.favorite){const id=+b.dataset.favorite;favorites=favorites.includes(id)?favorites.filter(x=>x!==id):[...favorites,id];save();render()}if(b.dataset.add){const id=+b.dataset.add;cart[id]=Math.min(20,(cart[id]||0)+ +$('#quantity').value);save();$('#detail').close();toast('デモカートに追加しました')}if(b.dataset.quantity){const id=b.dataset.quantity;cart[id]=Math.min(20,cart[id]+ +b.dataset.delta);if(cart[id]<=0)delete cart[id];save();renderCart()}if(b.dataset.remove){delete cart[b.dataset.remove];save();renderCart()}if(b.classList.contains('close'))b.closest('dialog').close()});
-document.querySelectorAll('dialog').forEach(d=>d.addEventListener('click',e=>{if(e.target===d){const r=d.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)d.close()}}));
-$('#search-form').addEventListener('submit',e=>{e.preventDefault();render();$('#catalog').scrollIntoView({behavior:'smooth'})});$('#search').addEventListener('input',render);document.querySelectorAll('[name=genre]').forEach(x=>x.addEventListener('change',()=>{genre=x.value;render()}));document.querySelectorAll('[name=color],#price,#sort,#in-stock').forEach(x=>x.addEventListener('change',render));$('#reset').onclick=reset;$('#empty-reset').onclick=reset;$('#all-link').onclick=reset;document.querySelector('nav a').onclick=reset;$('#favorite-toggle').onclick=()=>{favoriteOnly=!favoriteOnly;render();$('#catalog').scrollIntoView({behavior:'smooth'})};$('#cart-toggle').onclick=()=>{renderCart();$('#cart').showModal()};save();render();
+import {categories,colors,products,categoryName,filterProducts} from './catalog.js';
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const yen=n=>'¥'+n.toLocaleString('ja-JP');
+const escape=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const icons={search:'<circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/>',heart:'<path d="M20.7 4.7a5.5 5.5 0 0 0-7.8 0L12 5.8l-1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.7-8.5a5.5 5.5 0 0 0 0-7.8Z"/>',bag:'<path d="M5 7h14l1 14H4L5 7Z"/><path d="M8 8V6a4 4 0 0 1 8 0v2"/>',grid:'<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>',home:'<path d="m3 10 9-7 9 7v11h-6v-7H9v7H3Z"/>',sliders:'<path d="M3 6h5m4 0h9M3 18h10m4 0h4"/><circle cx="10" cy="6" r="2"/><circle cx="15" cy="18" r="2"/>'};
+const icon=name=>`<svg class="icon" viewBox="0 0 24 24" aria-hidden="true">${icons[name]||icons.grid}</svg>`;
+$$('[data-icon]').forEach(el=>el.innerHTML=icon(el.dataset.icon));
+const find=id=>products.find(p=>p.id===Number(id));
+function read(key,fallback){try{return JSON.parse(localStorage.getItem('market-v2-'+key))??fallback}catch{return fallback}}
+function validIds(value){return Array.isArray(value)?[...new Set(value.filter(id=>Number.isInteger(id)&&find(id)))]:[]}
+let favorites=validIds(read('favorites',[]));
+let recent=validIds(read('recent',[])).slice(0,6);
+let cart=read('cart',{});
+if(!cart||typeof cart!=='object'||Array.isArray(cart))cart={};
+cart=Object.fromEntries(Object.entries(cart).filter(([id,q])=>find(id)?.stock&&Number.isInteger(q)&&q>0&&q<=20));
+let compared=[];
+const initial={category:'all',genre:'all',query:'',price:'all',colors:[],stock:false,sort:'recommended',favoritesOnly:false,page:1};
+let state={...initial,colors:[]};
+function readURL(){
+ const p=new URLSearchParams(location.search);
+ state={...initial,colors:[]};
+ if(categories.some(c=>c.id===p.get('category')))state.category=p.get('category');
+ if(categories.find(c=>c.id===state.category)?.genres.includes(p.get('genre')))state.genre=p.get('genre');
+ state.query=p.get('q')||'';
+ if(['1000','3000','10000','30000'].includes(p.get('price')))state.price=p.get('price');
+ state.colors=p.getAll('color').filter(c=>c in colors);
+ state.stock=p.get('stock')==='1';state.favoritesOnly=p.get('saved')==='1';
+ if(['low','high','new'].includes(p.get('sort')))state.sort=p.get('sort');
+ state.page=Math.max(1,Number.parseInt(p.get('page')||'1',10)||1);
+}
+function writeURL(){
+ const p=new URLSearchParams();
+ if(state.category!=='all')p.set('category',state.category);
+ if(state.genre!=='all')p.set('genre',state.genre);
+ if(state.query)p.set('q',state.query);
+ if(state.price!=='all')p.set('price',state.price);
+ state.colors.forEach(c=>p.append('color',c));
+ if(state.stock)p.set('stock','1');if(state.favoritesOnly)p.set('saved','1');
+ if(state.sort!=='recommended')p.set('sort',state.sort);if(state.page>1)p.set('page',state.page);
+ const item=$('#detail-dialog').open?$('#detail-dialog').dataset.item:null;if(item)p.set('item',item);
+ history.replaceState(null,'',location.pathname+(p.size?'?'+p:'')+location.hash);
+}
+function save(){try{localStorage.setItem('market-v2-favorites',JSON.stringify(favorites));localStorage.setItem('market-v2-cart',JSON.stringify(cart));localStorage.setItem('market-v2-recent',JSON.stringify(recent));}catch{toast('保存が制限されています。データは今回の操作中のみ保持します。')}$('#cart-count').textContent=Object.values(cart).reduce((a,b)=>a+b,0)}
+function toast(message){$('#toast').textContent=message;$('#toast').classList.add('show');clearTimeout(toast.timer);toast.timer=setTimeout(()=>$('#toast').classList.remove('show'),3000)}
+function scrollCatalog(){ $('#catalog').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'instant':'smooth'}); }
+function buildControls(){
+ $('#search-category').innerHTML='<option value="all">全カテゴリ</option>'+categories.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+ $('#navigation').innerHTML='<button data-action="all" data-nav="all">すべての商品</button>'+categories.map(c=>`<button data-category="${c.id}" data-nav="${c.id}">${c.name}</button>`).join('');
+ $('#category-grid').innerHTML=categories.map(c=>`<button class="category-card" data-category="${c.id}"><span class="category-image"><img src="${c.id==='hair'?'assets/product-1.svg':`assets/photos/${c.image}.jpg`}" alt="" loading="lazy"></span><strong>${c.name}</strong><small>${c.en}</small></button>`).join('');
+ $('#category-filters').innerHTML=[{id:'all',name:'すべての商品'},...categories].map(c=>`<label class="filter-option"><input type="radio" name="category" value="${c.id}"><span>${c.name}</span><small>${c.id==='all'?products.length:products.filter(p=>p.category===c.id).length}</small></label>`).join('');
+ $('#color-filters').innerHTML=Object.entries(colors).map(([name,color])=>`<label class="color-option"><input type="checkbox" name="color" value="${name}"><span class="swatch" style="background:${color}"></span>${name}</label>`).join('');
+ $('#search-suggestions').innerHTML=['ヘッドホン','バッグ','コーヒー','シュシュ','カチューシャ','チェア','ボトル','スキンケア'].map(v=>`<option value="${v}">`).join('');
+}
+function syncControls(){
+ if($('#search').value!==state.query)$('#search').value=state.query;$('#search-category').value=state.category;$('#price').value=state.price;$('#stock').checked=state.stock;$('#sort').value=state.sort;
+ $$('[name=category]').forEach(el=>el.checked=el.value===state.category);
+ $$('[name=color]').forEach(el=>el.checked=state.colors.includes(el.value));
+ const cat=categories.find(c=>c.id===state.category);
+ $('#genre-field').hidden=!cat;
+ $('#genre').innerHTML='<option value="all">ジャンル全件</option>'+(cat?.genres||[]).map(g=>`<option>${g}</option>`).join('');$('#genre').value=state.genre;
+ $$('[data-nav]').forEach(el=>el.setAttribute('aria-current',String(el.dataset.nav===state.category)));
+ $$('[data-action=favorites]').forEach(el=>el.setAttribute('aria-pressed',String(state.favoritesOnly)));
+}
+function productCard(p){return `<article class="product"><button class="product-image" data-detail="${p.id}" aria-label="${p.name}の詳細"><img src="${p.image}" alt="${p.name}のイメージ" loading="lazy" width="400" height="400">${!p.stock?'<span class="tag sold">SOLD OUT</span>':p.tag?`<span class="tag">${p.tag}</span>`:''}</button><button class="heart" data-favorite="${p.id}" aria-pressed="${favorites.includes(p.id)}" aria-label="${p.name}をお気に入り${favorites.includes(p.id)?'から削除':'に追加'}">${icon('heart')}</button><p class="product-brand">${p.brand}</p><h3><button data-detail="${p.id}">${p.name}</button></h3><p class="product-desc">${p.description}</p><p class="price">${yen(p.price)}<small>税込</small></p><div class="product-meta"><span><i class="swatch" style="background:${colors[p.color]}"></i>${p.color}</span><label class="compare-check"><input type="checkbox" data-compare="${p.id}" ${compared.includes(p.id)?'checked':''} aria-label="${p.name}を比較">比較</label></div></article>`}
+function render(){
+ syncControls();
+ const list=filterProducts({...state,favorites});const pages=Math.max(1,Math.ceil(list.length/12));state.page=Math.min(state.page,pages);
+ const title=state.favoritesOnly?'お気に入り':state.genre!=='all'?state.genre:categoryName(state.category);
+ $('#catalog-title').textContent=title;$('#breadcrumb-current').textContent=state.category==='all'?title:categoryName(state.category)+(state.genre!=='all'?' / '+state.genre:'');
+ const start=(state.page-1)*12;
+ $('#result-count').textContent=list.length?`${list.length}件中 ${start+1}–${Math.min(start+12,list.length)}件を表示`:'0件の商品';
+ $('#products').innerHTML=list.slice(start,start+12).map(productCard).join('');$('#empty').hidden=list.length>0;
+ const chips=[];
+ if(state.query)chips.push(['query',`検索：${state.query}`]);if(state.category!=='all')chips.push(['category',categoryName(state.category)]);if(state.genre!=='all')chips.push(['genre',state.genre]);if(state.price!=='all')chips.push(['price',`${yen(Number(state.price))}以下`]);state.colors.forEach(c=>chips.push(['color:'+c,c]));if(state.stock)chips.push(['stock','在庫あり']);if(state.favoritesOnly)chips.push(['favoritesOnly','お気に入り']);
+ $('#filter-chips').innerHTML=chips.map(([key,label])=>`<button class="chip" data-clear="${escape(key)}" aria-label="${escape(label)}を解除">${escape(label)}<span aria-hidden="true">×</span></button>`).join('');
+ $('#pagination').innerHTML=pages>1?`<button data-page="${state.page-1}" ${state.page===1?'disabled':''} aria-label="前のページ">←</button>`+Array.from({length:pages},(_,i)=>`<button data-page="${i+1}" aria-label="${i+1}ページ目" ${state.page===i+1?'aria-current="page"':''}>${i+1}</button>`).join('')+`<button data-page="${state.page+1}" ${state.page===pages?'disabled':''} aria-label="次のページ">→</button>`:'';
+ renderRecent();renderCompareBar();writeURL();
+}
+function renderRecent(){ $('#recent-section').hidden=!recent.length;$('#recent-products').innerHTML=recent.map(id=>find(id)).map(p=>`<button data-detail="${p.id}"><img src="${p.image}" alt="" loading="lazy">${p.name}<strong>${yen(p.price)}</strong></button>`).join('');}
+function reset(scroll=true){state={...initial,colors:[]};render();if(scroll)scrollCatalog()}
+function chooseCategory(id){state.category=id;state.genre='all';state.page=1;state.favoritesOnly=false;render();scrollCatalog()}
+function detail(id){const p=find(id);if(!p)return;recent=[p.id,...recent.filter(x=>x!==p.id)].slice(0,6);save();renderRecent();$('#detail-content').innerHTML=`<div class="detail-grid"><div><img class="detail-image" src="${p.image}" alt="${p.name}のイメージ写真"><p class="sample-caption">写真はイメージです。実際の販売商品ではありません。</p></div><div class="detail-body"><p class="eyebrow">${p.brand}</p><h2 id="detail-title">${p.name}</h2><p>${p.description}</p><p class="price">${yen(p.price)}<small>税込・サンプル価格</small></p><dl><div><dt>カテゴリ</dt><dd>${categoryName(p.category)}</dd></div><div><dt>ジャンル</dt><dd>${p.genre}</dd></div><div><dt>カラー</dt><dd>${p.color}</dd></div><div><dt>仕様（サンプル）</dt><dd>${p.spec}</dd></div><div><dt>在庫（サンプル）</dt><dd>${p.stock?'在庫あり':'在庫なし'}</dd></div></dl><div class="detail-actions"><label>数量<select id="quantity" ${p.stock?'':'disabled'}>${[1,2,3,4,5].map(n=>`<option value="${n}">${n}</option>`).join('')}</select></label><button class="primary" data-add="${p.id}" ${p.stock?'':'disabled'}>${p.stock?'デモカートに入れる':'現在在庫がありません'}</button></div><button class="text-link" data-favorite="${p.id}">${favorites.includes(p.id)?'お気に入りから削除':'♡ お気に入りに保存'}</button><p class="sample-caption">このデモでは注文・決済・配送は行いません。</p></div></div>`;
+ $('#detail-dialog').dataset.item=p.id;if(!$('#detail-dialog').open)$('#detail-dialog').showModal();writeURL();
+}
+function add(id,quantity=1){const p=find(id);if(!p?.stock)return;const old=cart[id]||0;cart[id]=Math.min(20,old+quantity);save();toast(cart[id]===old?'1商品あたり20点まで追加できます':'デモカートに追加しました');}
+function renderCart(){const items=Object.entries(cart);$('#cart-content').innerHTML=items.length?items.map(([id,q])=>{const p=find(id);return `<div class="cart-row"><img src="${p.image}" alt=""><div><h3>${p.name}</h3><p class="price">${yen(p.price)} <small>税込</small></p><div class="quantity-row"><button data-quantity="${id}" data-delta="-1" aria-label="${p.name}の数量を減らす">−</button><span>${q}</span><button data-quantity="${id}" data-delta="1" ${q>=20?'disabled':''} aria-label="${p.name}の数量を増やす">＋</button><button class="remove-item" data-remove="${id}">削除</button></div></div></div>`}).join('')+`<div class="cart-total"><span>商品合計（税込）</span><strong>${yen(items.reduce((total,[id,q])=>total+find(id).price*q,0))}</strong></div><div class="cart-notice">注文・決済はできません。<br>送料・配送日時は設定されていません。</div><button class="text-link close">買い物を続ける →</button>`:'<div class="empty"><h3>カートは空です</h3><p>気になる商品を見つけて、追加してみましょう。</p><button class="primary close">商品を見る</button></div>'}
+function renderCompareBar(){ $('#compare-bar').hidden=!compared.length;$('#compare-count').textContent=`${compared.length} / 3点を選択中`; }
+function showComparison(){if(!compared.length)return;$('#compare-content').innerHTML=`<div class="comparison-grid" style="--compare-columns:${compared.length}">${compared.map(id=>{const p=find(id);return `<article><img src="${p.image}" alt="${p.name}のイメージ"><h3>${p.name}</h3><p class="price">${yen(p.price)}</p><dl><dt>カテゴリ</dt><dd>${categoryName(p.category)}</dd><dt>カラー</dt><dd>${p.color}</dd><dt>仕様（サンプル）</dt><dd>${p.spec}</dd><dt>在庫（サンプル）</dt><dd>${p.stock?'在庫あり':'在庫なし'}</dd></dl><button class="primary" data-add="${p.id}" ${p.stock?'':'disabled'}>デモカートに追加</button></article>`}).join('')}</div>`;$('#compare-dialog').showModal()}
+function toggleFavorite(id){favorites=favorites.includes(id)?favorites.filter(x=>x!==id):[...favorites,id];save();render();if($('#detail-dialog').open)detail(id);toast(favorites.includes(id)?'お気に入りに保存しました':'お気に入りから削除しました')}
+const actions={all:()=>reset(),reset:()=>reset(false),home:()=>{reset(false);window.scrollTo({top:0,behavior:'smooth'})},new:()=>{reset(false);state.sort='new';render();scrollCatalog()},favorites:()=>{const next=!state.favoritesOnly;state={...initial,colors:[],favoritesOnly:next};render();scrollCatalog()},cart:()=>{renderCart();$('#cart-dialog').showModal()},compare:showComparison,'clear-compare':()=>{compared=[];render()},'clear-recent':()=>{recent=[];save();renderRecent()},guide:()=>$('#guide-dialog').showModal(),'clear-data':()=>{favorites=[];cart={};recent=[];compared=[];save();render();toast('このブラウザの保存データを消去しました')}};
+document.addEventListener('click',e=>{
+ const b=e.target.closest('button');if(!b||b.disabled)return;
+ if(b.classList.contains('close')){b.closest('dialog').close();return}
+ if(b.dataset.action){actions[b.dataset.action]?.();return}
+ if(b.dataset.category){chooseCategory(b.dataset.category);return}
+ if(b.dataset.detail){detail(Number(b.dataset.detail));return}
+ if(b.dataset.favorite){toggleFavorite(Number(b.dataset.favorite));return}
+ if(b.dataset.add){const inDetail=!!b.closest('#detail-dialog');add(Number(b.dataset.add),inDetail?Number($('#quantity').value):1);if(inDetail)$('#detail-dialog').close();return}
+ if(b.dataset.quantity){const id=b.dataset.quantity;cart[id]=Math.max(0,Math.min(20,cart[id]+Number(b.dataset.delta)));if(!cart[id])delete cart[id];save();renderCart();return}
+ if(b.dataset.remove){delete cart[b.dataset.remove];save();renderCart();return}
+ if(b.dataset.page){state.page=Number(b.dataset.page);render();scrollCatalog();return}
+ if(b.dataset.clear){const key=b.dataset.clear;if(key.startsWith('color:'))state.colors=state.colors.filter(c=>c!==key.slice(6));else{state[key]=initial[key];if(key==='category')state.genre='all'}state.page=1;render()}
+});
+document.addEventListener('change',e=>{
+ const el=e.target;
+ if(el.name==='category'||el.id==='search-category'){chooseCategory(el.value);return}
+ if(el.name==='color'){state.colors=$$('[name=color]:checked').map(x=>x.value);state.page=1;render();return}
+ if(['genre','price','sort','stock'].includes(el.id)){state[el.id]=el.id==='stock'?el.checked:el.value;state.page=1;render();return}
+ if(el.dataset.compare){const id=Number(el.dataset.compare);if(el.checked){if(compared.length===3){el.checked=false;toast('比較は3点まで選択できます');return}compared.push(id)}else compared=compared.filter(x=>x!==id);renderCompareBar()}
+});
+$('#search-form').addEventListener('submit',e=>{e.preventDefault();state.query=$('#search').value.trim();state.page=1;render();scrollCatalog()});
+let composing=false;
+const updateSearch=()=>{state.query=$('#search').value;state.page=1;render()};
+$('#search').addEventListener('compositionstart',()=>composing=true);
+$('#search').addEventListener('compositionend',()=>{composing=false;updateSearch()});
+$('#search').addEventListener('input',()=>{if(!composing)updateSearch()});
+$$('dialog').forEach(d=>{d.addEventListener('click',e=>{if(e.target===d){const r=d.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)d.close()}});d.addEventListener('close',()=>{if(d.id==='detail-dialog')writeURL()})});
+const mobile=matchMedia('(max-width:900px)');$('#filters').open=!mobile.matches;mobile.addEventListener('change',e=>$('#filters').open=!e.matches);
+window.addEventListener('popstate',()=>{readURL();render()});
+readURL();buildControls();save();const initialItem=new URLSearchParams(location.search).get('item');render();if(initialItem)detail(Number(initialItem));

@@ -1,32 +1,33 @@
-# mignon — ヘアアクセサリーECのUIデモ
+# MIGNON MARKET
 
-注文・決済・個人情報入力のない、架空の店舗の操作確認用プロトタイプです。実際の商品を販売しません。
+A responsive, non-transactional general-commerce UI demo. Public preview:
+https://yasufumi-27.github.io/mignon-hair-demo/
 
-## ローカル起動
+## Run
 
 ```sh
 python3 -m http.server 4173
+node --test tests/catalog.test.mjs
 ```
 
-http://localhost:4173 を開いてください。ビルド・依存パッケージは不要です。
+Open http://localhost:4173/ over HTTP (ES modules need HTTP; opening index.html directly as a file is not supported).
 
-## 実装済み
+## Features
 
-- PC・スマートフォン対応レイアウト
-- 全16サンプル商品、6ジャンル（シュシュ、カチューシャ、ヘアクリップ、バレッタ、ヘアゴム、ヘアピン）
-- キーワードAND検索、ジャンル・価格上限・カラー・在庫絞り込み
-- おすすめ・価格昇順／降順・新着順
-- 商品詳細、ブラウザ内のお気に入り・デモカート保存、数量変更・削除
-- ジャンル／キーワードのURL共有、該当なし表示、条件クリア
-- オリジナルSVG商品イメージ（実際の商品写真ではありません）
+- 7 categories / 32 sample products; extensible data in catalog.js
+- Global and category search, category-specific genres, color/price/stock filters
+- Selected filter chips, clear/reset, sorting, 12-item pagination, URL-encoded filter state
+- Product detail links (`?item=101`), accessible dialogs, favorites, recent history, cart quantity and deletion
+- Up to 3 products compared by price/category/color/specification/stock
+- Responsive navigation, collapsible mobile filters, mobile bottom navigation, reduced motion and focus states
 
-## 公開と制限
+Design sources and boundaries: DESIGN.md. Image source URLs: assets/photos/SOURCES.txt.
 
-GitHub Pages は main ブランチのルートを公開します。`.nojekyll` を配置済みです。
-GitHub Pages は実際のEC事業・商取引を目的としたホスティングとして利用できません。
+## Demo only
+
+Products, brands, prices and specifications are fictional examples; stock photos are illustrative. No real sales, checkout, login, admin CRUD, AI model or SNS APIs. Favorites/cart/recent items persist in this browser only. GitHub Pages is not a production-commerce host:
 https://docs.github.com/en/pages/getting-started-with-github-pages/github-pages-limits
 
-本番ではEC用ホスティング、認証、商品・在庫・注文DB、管理画面、サーバー側の金額検証と決済Webhook、配送・返品対応が必要です。このデモのローカルストレージや価格情報を決済の根拠にしないでください。
+## Deployment
 
-ストア配布のiOS/Androidアプリは含みません。モバイルブラウザ対応は実装済みです。
-外部通信はGoogle Fontsのフォント読み込みのみです。購入者情報は収集しません。
+GitHub Pages publishes main branch root. `.nojekyll` is present. Relative asset paths work on project Pages URLs. No build step or secrets.
