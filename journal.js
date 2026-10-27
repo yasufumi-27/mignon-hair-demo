@@ -6,9 +6,10 @@ export const articles=[
  {id:'evening-light',type:'特集',date:'2026.10.20',title:'夜の部屋を楽しむ、灯りと余白のつくり方',intro:'仕事が終わった後の部屋を、くつろぐための場所へ。テーブルランプを中心に考える空間づくり。',image:'assets/photos/lamp.jpg',category:'home',sections:[['明るさだけでなく、光の向きを見る','部屋全体を均等に照らすだけでなく、手元や壁に光を向けると印象が変わります。読書などの作業では十分な明るさを確保し、使う目的に合わせて照明を組み合わせましょう。'],['置く場所を先に測る','サイドテーブルの広さや、電源までの距離を確認してから選びます。コードが通路を横切らないか、周りに熱の影響を受けるものがないかも確認し、製品の取扱説明書に従って設置してください。'],['余白もインテリアの一部','ランプの横に置くものは、一冊の本や小さなトレイなど少なめに。お気に入りのものが引き立つ余白を残すと、日々の片付けもしやすくなります。']]},
  {id:'weekend-bag',type:'コラム',date:'2026.10.18',title:'身軽に出かける。週末バッグの中身を整える',intro:'必要なものだけを持って、いつもの街を歩く。バッグ選びと持ち物の見直しを一緒に。',image:'assets/photos/bottle.jpg',category:'outdoor',sections:[['行き先に合わせて、中身を決める','散歩、カフェ、買い物。どこへ行くかで必要な持ち物は変わります。一度すべて出して、今日使うものを選び直すと、バッグに必要な容量も見えてきます。'],['よく使うものの定位置をつくる','鍵やスマートフォンなど、取り出す回数の多いものは決まった場所へ。ポケットの数だけでなく、開口部の形や片手で取り出しやすいかも選ぶ際のポイントです。'],['持ち歩く道具もサイズを確認','ボトルやポーチを入れるなら、高さ・幅・重さのバランスを確認しましょう。身軽さを優先する日と荷物が多い日で、使い分けるのも一つの方法です。']]}
 ];
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const href=a=>'article.html?id='+a.id;
 const types=['すべて','キャンペーン','特集','コラム','記事'];
-function card(a){return `<a class="journal-card" href="${href(a)}"><div class="journal-image"><img src="${a.image}" alt="" width="600" height="400" loading="lazy"><span>${a.type}</span></div><div class="journal-card-body"><time>${a.date}</time><h3>${a.title}</h3><p>${a.intro}</p><span class="journal-read">続きを読む ↗</span></div></a>`}
+function card(a){return `<a class="journal-card" href="${href(a)}"><div class="journal-image"><img src="${esc(a.image)}" alt="" width="600" height="400" loading="lazy"><span>${esc(a.type)}</span></div><div class="journal-card-body"><time>${esc(a.date)}</time><h3>${esc(a.title)}</h3><p>${esc(a.intro)}</p><span class="journal-read">続きを読む ↗</span></div></a>`}
 export function initJournal(){
  const $=s=>document.querySelector(s),view=document.body.dataset.view;
  $('.header-inner').insertAdjacentHTML('afterbegin','<button class="menu-toggle" aria-label="メニューを開く" aria-controls="site-menu" aria-expanded="false"><span aria-hidden="true">☰</span><small>メニュー</small></button>');
@@ -19,6 +20,11 @@ export function initJournal(){
  menu.addEventListener('close',()=>toggle.setAttribute('aria-expanded','false'));
  menu.addEventListener('click',e=>{if(e.target===menu){const r=menu.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)menu.close()}});
  window.addEventListener('pagehide',()=>{if(menu.open)menu.close()});
+ renderJournal();
+}
+export function renderJournal(){
+ const $=s=>document.querySelector(s),view=document.body.dataset.view;
+ document.querySelectorAll('.journal-home,.journal-page,.journal-article').forEach(e=>e.remove());
  if(view==='home')$('.benefit-strip').insertAdjacentHTML('afterend',`<section class="journal-home" aria-labelledby="journal-home-title"><div class="section-heading"><div><p class="eyebrow">NEWS & JOURNAL</p><h2 id="journal-home-title">今月の特集と、暮らしの読みもの。</h2></div><a class="text-link" href="campaigns.html">一覧を見る →</a></div><div class="journal-grid">${articles.map(card).join('')}</div></section>`);
  if(view!=='journal')return;
  $('#recent-section').hidden=true;
@@ -31,7 +37,7 @@ export function initJournal(){
  }else{
  const a=articles.find(a=>a.id===new URLSearchParams(location.search).get('id'));
  if(!a){shell.insertAdjacentHTML('afterbegin','<section class="journal-page"><h1>記事が見つかりません</h1><a class="primary" href="campaigns.html">一覧へ戻る</a></section>');document.title='記事が見つかりません | MIGNON MARKET';return}
- shell.insertAdjacentHTML('afterbegin',`<article class="journal-article"><nav class="breadcrumbs"><a href="index.html">ホーム</a><span>/</span><a href="campaigns.html">キャンペーン・読みもの</a><span>/</span><span>${a.type}</span></nav><header><div class="article-meta"><span>${a.type}</span><time>${a.date}</time><span>MIGNON JOURNAL</span></div><h1>${a.title}</h1><p class="article-intro">${a.intro}</p></header><img class="article-cover" src="${a.image}" alt="${a.title}のイメージ" width="1200" height="700"><div class="article-body">${a.sections.map(([h,p])=>`<section><h2>${h}</h2><p>${p}</p></section>`).join('')}<aside class="article-cta"><p>気になるアイテムを探してみませんか？</p><a class="primary" href="catalog.html?category=${a.category}">関連する商品を見る →</a></aside><p class="article-notice">この記事はデモ用の編集コンテンツです。写真・商品・価格はイメージで、実際の販売・キャンペーンは行いません。</p><a class="text-link" href="campaigns.html">← キャンペーン・読みもの一覧へ</a></div><section class="article-related"><h2>こちらの読みものも</h2><div class="journal-grid">${articles.filter(b=>b.id!==a.id).slice(0,3).map(card).join('')}</div></section></article>`);
+ shell.insertAdjacentHTML('afterbegin',`<article class="journal-article"><nav class="breadcrumbs"><a href="index.html">ホーム</a><span>/</span><a href="campaigns.html">キャンペーン・読みもの</a><span>/</span><span>${esc(a.type)}</span></nav><header><div class="article-meta"><span>${esc(a.type)}</span><time>${esc(a.date)}</time><span>MIGNON JOURNAL</span></div><h1>${esc(a.title)}</h1><p class="article-intro">${esc(a.intro)}</p></header><img class="article-cover" src="${esc(a.image)}" alt="${esc(a.title)}のイメージ" width="1200" height="700"><div class="article-body">${a.sections.map(([h,p])=>`<section><h2>${esc(h)}</h2><p>${esc(p)}</p></section>`).join('')}<aside class="article-cta"><p>気になるアイテムを探してみませんか？</p><a class="primary" href="catalog.html?category=${esc(a.category)}">関連する商品を見る →</a></aside><p class="article-notice">この記事はデモ用の編集コンテンツです。写真・商品・価格はイメージで、実際の販売・キャンペーンは行いません。</p><a class="text-link" href="campaigns.html">← キャンペーン・読みもの一覧へ</a></div><section class="article-related"><h2>こちらの読みものも</h2><div class="journal-grid">${articles.filter(b=>b.id!==a.id).slice(0,3).map(card).join('')}</div></section></article>`);
  document.title=a.title+' | MIGNON MARKET';
  }
 }

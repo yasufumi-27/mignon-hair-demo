@@ -25,7 +25,7 @@ Design sources and boundaries: DESIGN.md. Image source URLs: assets/photos/SOURC
 
 ## Demo only
 
-Products, brands, prices and specifications are fictional examples; stock photos are illustrative. No real sales, checkout, login, admin CRUD, AI model or SNS APIs. Favorites/cart/recent items persist in this browser only. GitHub Pages is not a production-commerce host:
+Products, brands, prices and specifications are fictional examples; stock photos are illustrative. No real sales, checkout, AI model or SNS APIs. Favorites/cart/recent items persist in this browser only. GitHub Pages is not a production-commerce host:
 https://docs.github.com/en/pages/getting-started-with-github-pages/github-pages-limits
 
 ## Deployment
@@ -39,3 +39,13 @@ GitHub Pages publishes main branch root. `.nojekyll` is present. Relative asset 
 - 履歴エントリーごとのスクロール位置、フィルター開閉、検索入力途中の内容、比較選択をsessionStorageへ保存する。pageshowでURLの条件を再読込し、BFCache復元時も画面と条件を一致させる。
 - カート・お気に入りの変更は戻る操作で取り消さず、保存された最新データを反映する。
 - ローカルブラウザ確認：カテゴリ→ジャンル→価格→戻る／進む、詳細→戻る、390pxでフィルター開閉復元。Safari実機は別途確認対象。
+
+## 商品・記事の管理
+
+管理画面: https://mignon-market-admin.fr8znvd4wp.chatgpt.site/admin.html
+
+商品と記事はSitesの共有D1データベースから取得する。管理画面の保存で公開サイトへ反映（表示中のページは約3秒間隔で変更確認）。初期読込失敗時は未接続メッセージを表示し、静的な初期データへ戻さない。通信断中は最後に取得した内容と警告を表示する。
+
+管理画面は別サービス `../mignon-admin-service`。公開APIは公開中の項目だけを返し、管理APIはパスワード認証が必要。パスワードをこのGitHubリポジトリに保存しない。画像アップロードはR2。
+
+ローカルで管理サービスを5173番、店舗を4173番で起動するとローカルAPIへ接続する。
