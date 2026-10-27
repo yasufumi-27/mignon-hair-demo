@@ -1,3 +1,4 @@
+import {initMotion} from './motion.js?v=20261027-5';
 import {categories,colors,products,categoryName,filterProducts} from './catalog.js';
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const yen=n=>'¥'+n.toLocaleString('ja-JP');
@@ -178,3 +179,5 @@ else document.title=(isHome?'ホーム':state.favoritesOnly?'お気に入り':st
 $('#navigation').insertAdjacentHTML('afterbegin','<button data-action="home">ホーム</button>');
 
 restoreNavigation();
+
+initMotion();
