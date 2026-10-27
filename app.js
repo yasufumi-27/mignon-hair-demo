@@ -34,13 +34,19 @@ const entryId=history.state?.marketEntry||crypto.randomUUID();
 history.replaceState({...history.state,marketEntry:entryId},'');
 history.scrollRestoration='manual';
 function rememberView(){
- const view={x:scrollX,y:scrollY,filters:$('#filters').open,query:$('#search').value,searchCategory:$('#search-category').value,compared};
- try{sessionStorage.setItem('market-view-'+entryId,JSON.stringify(view))}catch{}
+ const view={x:scrollX,y:scrollY,filters:$('#filters').open,query:$('#search').value,searchCategory:$('#search-category').value,compared,navX:$('#navigation').scrollLeft};
+ try{sessionStorage.setItem('market-view-'+entryId,JSON.stringify(view));sessionStorage.setItem('market-nav-x',String(view.navX))}catch{}
+}
+function restoreNavigation(view){
+ let x=view?.navX;
+ if(!Number.isFinite(x)){try{x=Number(sessionStorage.getItem('market-nav-x'))}catch{x=0}}
+ $('#navigation').scrollLeft=Math.max(0,Number.isFinite(x)?x:0);
 }
 function restoreView(){
  let view;try{view=JSON.parse(sessionStorage.getItem('market-view-'+entryId))}catch{}
  if(view){$('#filters').open=view.filters;$('#search').value=view.query;$('#search-category').value=view.searchCategory;compared=validIds(view.compared).slice(0,3);$$('[data-compare]').forEach(e=>e.checked=compared.includes(Number(e.dataset.compare)));renderCompareBar();}
- requestAnimationFrame(()=>requestAnimationFrame(()=>window.scrollTo({left:view?.x||0,top:view?.y||0,behavior:'instant'})));
+ restoreNavigation(view);
+ requestAnimationFrame(()=>requestAnimationFrame(()=>{restoreNavigation(view);window.scrollTo({left:view?.x||0,top:view?.y||0,behavior:'instant'})}));
 }
 function navigate(url){rememberView();location.assign(url)}
 function listingURL(){
@@ -148,3 +154,5 @@ if(view==='product'){
 else document.title=(isHome?'ホーム':state.favoritesOnly?'お気に入り':state.query?'検索結果':categoryName(state.category))+' | MIGNON MARKET';
 // Keep desktop navigation available as well as the mobile navigation.
 $('#navigation').insertAdjacentHTML('afterbegin','<button data-action="home">ホーム</button>');
+
+restoreNavigation();
