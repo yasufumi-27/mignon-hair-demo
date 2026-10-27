@@ -1,6 +1,7 @@
+import {initInteractions,navigateSoft,openDialog,closeDialog} from './interaction.js?v=20261027-9';
 import {renderStorefront} from './storefront.js?v=20261027-8';
 import {loadLive,watchLive} from './live-store.js?v=20261027-8';
-import {initJournal,renderJournal} from './journal.js?v=20261027-8';
+import {initJournal,renderJournal} from './journal.js?v=20261027-9';
 import {initMotion} from './motion.js?v=20261027-8';
 import {categories,colors,products,categoryName,filterProducts} from './catalog.js';
 await loadLive();
@@ -53,7 +54,7 @@ function restoreView(){
  restoreNavigation(view);
  requestAnimationFrame(()=>requestAnimationFrame(()=>{restoreNavigation(view);window.scrollTo({left:view?.x||0,top:view?.y||0,behavior:'instant'})}));
 }
-function navigate(url){rememberView();location.assign(url)}
+function navigate(url){rememberView();navigateSoft(url)}
 function listingURL(){
  const p=new URLSearchParams();
  if(state.category!=='all')p.set('category',state.category);
@@ -139,12 +140,12 @@ function detail(id){const p=find(id);if(!p)return;const photos=p.images?.length?
 function add(id,quantity=1){const p=find(id);if(!p?.stock)return;const old=cart[id]||0;cart[id]=Math.min(20,old+quantity);save();toast(cart[id]===old?'1商品あたり20点まで追加できます':'デモカートに追加しました');}
 function renderCart(){const items=Object.entries(cart);$('#cart-content').innerHTML=items.length?items.map(([id,q])=>{const p=find(id);return `<div class="cart-row"><img src="${escape(p.image)}" alt=""><div><h3>${escape(p.name)}</h3><p class="price">${yen(p.price)} <small>税込</small></p><div class="quantity-row"><button data-quantity="${id}" data-delta="-1" aria-label="${escape(p.name)}の数量を減らす">−</button><span>${q}</span><button data-quantity="${id}" data-delta="1" ${q>=20?'disabled':''} aria-label="${escape(p.name)}の数量を増やす">＋</button><button class="remove-item" data-remove="${id}">削除</button></div></div></div>`}).join('')+`<div class="cart-total"><span>商品合計（税込）</span><strong>${yen(items.reduce((total,[id,q])=>total+find(id).price*q,0))}</strong></div><div class="cart-notice">注文・決済はできません。<br>送料・配送日時は設定されていません。</div><button class="text-link close">買い物を続ける →</button>`:'<div class="empty"><h3>カートは空です</h3><p>気になる商品を見つけて、追加してみましょう。</p><button class="primary close">商品を見る</button></div>'}
 function renderCompareBar(){ $('#compare-bar').hidden=!compared.length;$('#compare-count').textContent=`${compared.length} / 3点を選択中`; }
-function showComparison(){if(!compared.length)return;$('#compare-content').innerHTML=`<div class="comparison-grid" style="--compare-columns:${compared.length}">${compared.map(id=>{const p=find(id);return `<article><img src="${escape(p.image)}" alt="${escape(p.name)}のイメージ"><h3>${escape(p.name)}</h3><p class="price">${yen(p.price)}</p><dl><dt>カテゴリ</dt><dd>${categoryName(p.category)}</dd><dt>カラー</dt><dd>${escape(p.color)}</dd><dt>仕様（サンプル）</dt><dd>${escape(p.spec)}</dd><dt>在庫（サンプル）</dt><dd>${p.stock?'在庫あり':'在庫なし'}</dd></dl><button class="primary" data-add="${p.id}" ${p.stock?'':'disabled'}>デモカートに追加</button></article>`}).join('')}</div>`;$('#compare-dialog').showModal()}
+function showComparison(){if(!compared.length)return;$('#compare-content').innerHTML=`<div class="comparison-grid" style="--compare-columns:${compared.length}">${compared.map(id=>{const p=find(id);return `<article><img src="${escape(p.image)}" alt="${escape(p.name)}のイメージ"><h3>${escape(p.name)}</h3><p class="price">${yen(p.price)}</p><dl><dt>カテゴリ</dt><dd>${categoryName(p.category)}</dd><dt>カラー</dt><dd>${escape(p.color)}</dd><dt>仕様（サンプル）</dt><dd>${escape(p.spec)}</dd><dt>在庫（サンプル）</dt><dd>${p.stock?'在庫あり':'在庫なし'}</dd></dl><button class="primary" data-add="${p.id}" ${p.stock?'':'disabled'}>デモカートに追加</button></article>`}).join('')}</div>`;openDialog($('#compare-dialog'))}
 function toggleFavorite(id){favorites=favorites.includes(id)?favorites.filter(x=>x!==id):[...favorites,id];save();render();if($('#detail-dialog').open)detail(id);toast(favorites.includes(id)?'お気に入りに保存しました':'お気に入りから削除しました')}
-const actions={'apply-filters':applyFilters,'clear-draft':clearDraft,all:()=>navigate('catalog.html'),reset:()=>reset(),home:()=>navigate('index.html'),new:()=>navigate('catalog.html?sort=new'),favorites:()=>navigate('favorites.html'),cart:()=>navigate('cart.html'),compare:showComparison,'clear-compare':()=>{compared=[];render()},'clear-recent':()=>{recent=[];save();renderRecent()},guide:()=>$('#guide-dialog').showModal(),'clear-data':()=>{favorites=[];cart={};recent=[];compared=[];save();render();toast('このブラウザの保存データを消去しました')}};
+const actions={'apply-filters':applyFilters,'clear-draft':clearDraft,all:()=>navigate('catalog.html'),reset:()=>reset(),home:()=>navigate('index.html'),new:()=>navigate('catalog.html?sort=new'),favorites:()=>navigate('favorites.html'),cart:()=>navigate('cart.html'),compare:showComparison,'clear-compare':()=>{compared=[];render()},'clear-recent':()=>{recent=[];save();renderRecent()},guide:()=>openDialog($('#guide-dialog')),'clear-data':()=>{favorites=[];cart={};recent=[];compared=[];save();render();toast('このブラウザの保存データを消去しました')}};
 document.addEventListener('click',e=>{
  const b=e.target.closest('button');if(!b||b.disabled)return;
- if(b.classList.contains('close')){const d=b.closest('dialog');if(['detail-dialog','cart-dialog'].includes(d.id)){returnToList()}else d.close();return}
+ if(b.classList.contains('close')){const d=b.closest('dialog');if(['detail-dialog','cart-dialog'].includes(d.id)){returnToList()}else closeDialog(d);return}
  if(b.dataset.action){actions[b.dataset.action]?.();return}
  if(b.dataset.category){chooseCategory(b.dataset.category);return}
  if(b.dataset.detail){navigate('product.html?item='+Number(b.dataset.detail));return}
@@ -164,7 +165,7 @@ document.addEventListener('change',e=>{
  if(el.dataset.compare){const id=Number(el.dataset.compare);if(el.checked){if(compared.length===3){el.checked=false;toast('比較は3点まで選択できます');return}compared.push(id)}else compared=compared.filter(x=>x!==id);renderCompareBar()}
 });
 $('#search-form').addEventListener('submit',e=>{e.preventDefault();if(e.isComposing)return;state.query=$('#search').value.trim();state.category=$('#search-category').value;state.genre='all';state.favoritesOnly=false;state.page=1;goListing()});
-$$('dialog').forEach(d=>{d.addEventListener('click',e=>{if(e.target===d&&!['detail-dialog','cart-dialog'].includes(d.id)){const r=d.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)d.close()}})});
+$$('dialog').forEach(d=>{d.addEventListener('click',e=>{if(e.target===d&&!['detail-dialog','cart-dialog'].includes(d.id)){const r=d.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)closeDialog(d)}})});
 const mobile=matchMedia('(max-width:900px)');$('#filters').open=!mobile.matches;mobile.addEventListener('change',e=>$('#filters').open=!e.matches);
 readURL();buildControls();save();render();
 const view=['campaigns.html','article.html'].includes(route)?'journal':route==='product.html'?'product':route==='cart.html'?'cart':isHome?'home':'catalog';
@@ -202,3 +203,5 @@ watchLive(()=>{
 });
 
 restoreView();
+
+initInteractions();

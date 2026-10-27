@@ -1,3 +1,4 @@
+import {openDialog,closeDialog} from './interaction.js?v=20261027-9';
 export const articles=[
  {id:'october-edit',type:'特集',date:'2026.10.27',title:'今月のおすすめ。秋の暮らしを整える6つのヒント',intro:'身につけるもの、部屋に置くもの、ひと息つく時間。いつもの毎日を少し変える、秋のセレクション。',image:'assets/photos/interior.jpg',category:'home',sections:[['まずは、小さな場所から','部屋全体を模様替えしなくても、よく座る場所の照明や、机の上の小物を一つ変えるだけで気分は変わります。色を増やしすぎず、木の色・白・落ち着いたグリーンなど、好きな色を軸に選んでみましょう。'],['秋を楽しむ6つのアイデア','① やさしい灯りを一つ置く。② お気に入りのカップを決める。③ 朝のコーヒーをゆっくり淹れる。④ バッグの中を整える。⑤ ヘアアクセサリーで質感を足す。⑥ 音楽を楽しむ時間をつくる。大きな買い替えより、日常の一場面から始めるのがおすすめです。'],['選ぶ前に、使う場面を想像する','サイズや見た目だけでなく、どこに置くか、いつ使うかまで考えると選びやすくなります。商品ページで寸法・素材・お手入れ方法を確認し、今持っているものとの組み合わせも楽しんでください。']]},
  {id:'autumn-campaign',type:'キャンペーン',date:'2026.10.26',title:'AUTUMN DAYS｜秋のお気に入りを見つけよう',intro:'ファッションからホームアイテムまで。カテゴリを越えて巡る、秋のキャンペーン企画。',image:'assets/photos/bag.jpg',category:'fashion',sections:[['テーマは「毎日使いたくなるもの」','持ち歩くバッグ、くつろぐ部屋の道具、身につける小さなアクセント。秋の暮らしに取り入れたいアイテムを、使う場面ごとに紹介するキャンペーンのデモです。'],['開催内容（デモ設定）','掲載期間：2026年10月26日〜11月15日。対象：ファッション・ホーム・ヘアアクセサリーの紹介商品。期間や対象カテゴリを確認して商品一覧へ進む、キャンペーンページの構成例です。'],['ご利用について','この企画は画面確認用です。実際のセール・割引・クーポン配布は実施していません。掲載写真・価格はサンプルで、注文や決済はできません。']]},
@@ -15,10 +16,10 @@ export function initJournal(){
  $('.header-inner').insertAdjacentHTML('afterbegin','<button class="menu-toggle" aria-label="メニューを開く" aria-controls="site-menu" aria-expanded="false"><span aria-hidden="true">☰</span><small>メニュー</small></button>');
  document.body.insertAdjacentHTML('beforeend',`<dialog id="site-menu" aria-labelledby="site-menu-title"><div class="menu-top"><h2 id="site-menu-title">メニュー</h2><button class="menu-close" aria-label="メニューを閉じる">×</button></div><p class="eyebrow">EXPLORE MIGNON MARKET</p><nav aria-label="サイトメニュー"><a href="index.html">ホーム <span>→</span></a><a href="catalog.html">商品を探す <span>→</span></a><a href="campaigns.html" class="menu-campaign">キャンペーン <small>特集・コラム・記事もこちら</small><span>→</span></a><a href="favorites.html">お気に入り <span>→</span></a><a href="cart.html">カート <span>→</span></a></nav><p class="menu-note">日々の暮らしに、小さな発見を。<br>商品と読みものを、ひとつの場所で。</p></dialog>`);
  const menu=$('#site-menu'),toggle=$('.menu-toggle');
- toggle.addEventListener('click',()=>{menu.showModal();toggle.setAttribute('aria-expanded','true')});
- $('.menu-close').addEventListener('click',()=>menu.close());
+ toggle.addEventListener('click',()=>{openDialog(menu);toggle.setAttribute('aria-expanded','true')});
+ $('.menu-close').addEventListener('click',()=>closeDialog(menu));
  menu.addEventListener('close',()=>toggle.setAttribute('aria-expanded','false'));
- menu.addEventListener('click',e=>{if(e.target===menu){const r=menu.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)menu.close()}});
+ menu.addEventListener('click',e=>{if(e.target===menu){const r=menu.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)closeDialog(menu)}});
  window.addEventListener('pagehide',()=>{if(menu.open)menu.close()});
  renderJournal();
 }
