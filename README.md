@@ -31,3 +31,11 @@ https://docs.github.com/en/pages/getting-started-with-github-pages/github-pages-
 ## Deployment
 
 GitHub Pages publishes main branch root. `.nojekyll` is present. Relative asset paths work on project Pages URLs. No build step or secrets.
+
+## ページ遷移と履歴復元
+
+- `index.html`: ホーム、`catalog.html`: 商品検索、`favorites.html`: お気に入り、`product.html?item=107`: 商品詳細、`cart.html`: カート。
+- 絞り込み・並び替え・ページ番号はクエリに保持し、通常のドキュメント遷移でブラウザ履歴に追加する。検索は送信時に確定する。
+- 履歴エントリーごとのスクロール位置、フィルター開閉、検索入力途中の内容、比較選択をsessionStorageへ保存する。pageshowでURLの条件を再読込し、BFCache復元時も画面と条件を一致させる。
+- カート・お気に入りの変更は戻る操作で取り消さず、保存された最新データを反映する。
+- ローカルブラウザ確認：カテゴリ→ジャンル→価格→戻る／進む、詳細→戻る、390pxでフィルター開閉復元。Safari実機は別途確認対象。

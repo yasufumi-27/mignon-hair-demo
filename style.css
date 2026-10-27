@@ -33,3 +33,11 @@
 @media(max-width:900px){.filters-body>.check-line{grid-column:1/-1;align-self:start;margin-top:12px}.filters-body>fieldset:has(.color-filters){grid-column:1/-1}.color-filters{grid-template-columns:repeat(4,minmax(0,1fr))}}
 @media(max-width:600px){.color-filters{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:360px){#category-filters{grid-template-columns:minmax(0,1fr)}.catalog>.section-heading{flex-wrap:wrap}}
+
+/* Dedicated document routes share the shell, never the home-page content. */
+body[data-view="product"] #detail-dialog,body[data-view="cart"] #cart-dialog{position:relative;inset:auto;margin:32px auto;width:calc(100% - 40px);height:auto;max-height:none;max-width:1100px;border:1px solid var(--line);border-radius:8px;overflow:visible}
+body:has(#detail-dialog[open]),body:has(#cart-dialog[open]){overflow:auto}
+body:has(#compare-dialog[open]),body:has(#guide-dialog[open]){overflow:hidden}
+body[data-view="product"] #detail-dialog>.close{position:static;display:block;margin-left:auto;font-size:14px;width:auto;padding:8px 16px}
+body[data-view="catalog"] .catalog{border-top:0}
+@media(max-width:600px){body[data-view="product"] #detail-dialog,body[data-view="cart"] #cart-dialog{margin:16px auto;width:calc(100% - 24px)}}
