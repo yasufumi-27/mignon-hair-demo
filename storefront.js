@@ -1,5 +1,5 @@
 import {products,categories} from './catalog.js';
-import {articles} from './journal.js?v=20261027-8';
+import {articles} from './journal.js?v=20261027-10';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const yen=n=>'¥'+n.toLocaleString('ja-JP');
 function miniCard(p){return `<a class="selection-card" href="product.html?item=${p.id}"><div><img src="${esc(p.image)}" alt="${esc(p.name)}" width="450" height="450" loading="lazy">${p.tag?`<span>${esc(p.tag)}</span>`:''}<i aria-hidden="true">↗</i></div><small>${esc(categories.find(c=>c.id===p.category)?.name)}</small><h3>${esc(p.name)}</h3><p>${yen(p.price)} <small>税込</small></p></a>`}
