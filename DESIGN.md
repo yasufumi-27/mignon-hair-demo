@@ -16,7 +16,7 @@ Seven categories, 32 sample products; category-specific genres, cross-category s
 
 ## Honest demonstration boundaries
 
-All products, prices, specifications and availability are sample data. Photos are illustrative stock imagery and do not represent actual inventory or affiliation with visible manufacturers. No invented reviews, sales counts, shipping promises or discounts. No checkout, customer identity, payment processing, admin backend, AI learning, or advertising event transmission. Recommended sorting is editorial demo order, not personalized AI.
+All products, prices, specifications and availability are sample data. Photos are illustrative stock imagery and do not represent actual inventory or affiliation with visible manufacturers. No invented reviews, sales counts, shipping promises or discounts. No checkout, customer identity, payment processing, AI learning, or advertising event transmission. Recommended sorting is editorial demo order, not personalized AI.
 
 ## Assets
 
@@ -25,3 +25,14 @@ Photographs: Unsplash image CDN; source URLs in assets/photos/SOURCES.txt. Decor
 ## Validation
 
 Run `node --test tests/catalog.test.mjs` for category/genre/asset consistency, compound filters, availability and sorting. Manual browser checks cover category/genre/price combinations, comparison, product detail, cart persistence and quantity totals. GitHub Pages publishes this directory directly; no build dependencies.
+
+
+## 2026-10-27 storefront refinement
+
+Reference: Shopify Japan, 「売れるECサイトのデザイン：7つのポイントと12の参考サイト」 (2025-02-18), https://www.shopify.com/jp/blog/best-ecommerce-sites . Reviewed all twelve descriptions; inspected Francfranc's live home visually and Vermicular / Kinokuniya current navigation via their official pages.
+
+Applied principles: prominent search and imagery (Francfranc); early category entrances and varied editorial scale (STAYFUL); product context (AJUGA, GREEN SPOON); visual rhythm (reed, Yamamoto); clear information and help access (Vermicular, Kinokuniya); convenient persistent actions (FABRIC TOKYO); browsing across categories and saving (ZOZO); strong material/scene photography (Unagi no Nedoko, Daikanyama Seikaten).
+
+Original implementation: full-bleed photographic hero, live latest-article link, early category entrances, eight database-backed selections, asymmetric journal layout, larger catalog cards with genre labels, lower-positioned editorial recommendations, related products by category, an intersection-controlled cart action, and explicit demo help. Existing motion remains below the primary shopping entrances. No retailer assets, promotional promises, sales figures, reviews, or exact layouts were copied. Conversion improvement requires actual usage measurement; it is not established by the demo.
+
+QA: desktop and 390px layouts, category and multi-filter navigation, article links, detail/back/cart flow, dynamic content rendering. Shared admin/API endpoints remain unchanged.

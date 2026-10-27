@@ -48,4 +48,4 @@ GitHub Pages publishes main branch root. `.nojekyll` is present. Relative asset 
 
 管理画面は別サービス `../mignon-admin-service`。公開APIは公開中の項目だけを返し、管理APIはパスワード認証が必要。パスワードをこのGitHubリポジトリに保存しない。画像アップロードはR2。
 
-ローカルで管理サービスを5173番、店舗を4173番で起動するとローカルAPIへ接続する。
+ローカルで管理サービスを5173番、店舗を4174番で起動するとローカルAPIへ接続する（4173番では公開APIで表示確認）。

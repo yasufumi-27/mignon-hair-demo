@@ -1,6 +1,6 @@
 import {products} from './catalog.js';
-import {articles} from './journal.js?v=20261027-7';
-export const API=['localhost','127.0.0.1'].includes(location.hostname)?'http://localhost:5173/api':'https://mignon-market-admin.fr8znvd4wp.chatgpt.site/api';
+import {articles} from './journal.js?v=20261027-8';
+export const API=location.hostname==='localhost'&&location.port==='4174'?'http://localhost:5173/api':'https://mignon-market-admin.fr8znvd4wp.chatgpt.site/api';
 let revision=-1,busy=false,timer;
 function status(text){let el=document.querySelector('#live-status');if(!el){el=document.createElement('p');el.id='live-status';el.setAttribute('role','status');el.style.cssText='margin:0;padding:10px 20px;background:#fff2d8;font-size:12px;text-align:center';document.querySelector('header')?.after(el)}el.textContent=text;el.hidden=!text}
 async function get(path){const r=await fetch(API+'/'+path,{cache:'no-store',credentials:'omit',signal:AbortSignal.timeout(10000)});if(!r.ok)throw Error('データを取得できません');return r.json()}

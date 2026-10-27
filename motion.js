@@ -46,7 +46,7 @@ if(listing){
  const picks=products.filter(p=>!category||p.category===category).slice(0,4);
  if(!location.pathname.endsWith('favorites.html')&&picks.length){
  const label=categories.find(c=>c.id===category)?.name||'マーケット';
- document.querySelector('.catalog-layout').insertAdjacentHTML('beforebegin',`<section class="catalog-inspiration" aria-label="カテゴリのピックアップ"><div><span class="eyebrow">A CLOSER LOOK</span><h3>${label}の<br>気になるアイテム。</h3><small>編集ピックアップ・検索結果とは別枠</small>${pauseButton()}</div><div class="inspiration-items">${picks.map(p=>`<a href="product.html?item=${p.id}"><img src="${esc(p.image)}" alt="${esc(p.name)}" width="150" height="150"><span>${esc(p.name)}</span></a>`).join('')}</div></section>`);
+ document.querySelector('.catalog-layout').insertAdjacentHTML('afterend',`<section class="catalog-inspiration" aria-label="カテゴリのピックアップ"><div><span class="eyebrow">A CLOSER LOOK</span><h3>${label}の<br>気になるアイテム。</h3><small>編集ピックアップ・検索結果とは別枠</small>${pauseButton()}</div><div class="inspiration-items">${picks.map(p=>`<a href="product.html?item=${p.id}"><img src="${esc(p.image)}" alt="${esc(p.name)}" width="150" height="150"><span>${esc(p.name)}</span></a>`).join('')}</div></section>`);
  }
 }
 const onToggle=e=>{if(e.target.closest('.motion-toggle')){paused=!paused;syncPause()}};document.addEventListener('click',onToggle);
