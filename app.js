@@ -71,7 +71,7 @@ function save(){try{localStorage.setItem('market-v2-favorites',JSON.stringify(fa
 function toast(message){$('#toast').textContent=message;$('#toast').classList.add('show');clearTimeout(toast.timer);toast.timer=setTimeout(()=>$('#toast').classList.remove('show'),3000)}
 function buildControls(){
  $('#search-category').innerHTML='<option value="all">全カテゴリ</option>'+categories.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
- $('#navigation').innerHTML='<button data-action="all" data-nav="all">すべての商品</button>'+categories.map(c=>`<button data-category="${c.id}" data-nav="${c.id}">${c.name}</button>`).join('');
+ $('#navigation').innerHTML='<button data-action="all" data-nav="all">すべての商品</button>'+[...categories.filter(c=>c.id==='hair'),...categories.filter(c=>c.id!=='hair')].map(c=>`<button data-category="${c.id}" data-nav="${c.id}">${c.name}</button>`).join('');
  $('#category-grid').innerHTML=categories.map(c=>`<button class="category-card" data-category="${c.id}"><span class="category-image"><img src="${c.id==='hair'?'assets/product-1.svg':`assets/photos/${c.image}.jpg`}" alt="" loading="lazy"></span><strong>${c.name}</strong><small>${c.en}</small></button>`).join('');
  $('#category-filters').innerHTML=[{id:'all',name:'すべての商品'},...categories].map(c=>`<label class="filter-option"><input type="radio" name="category" value="${c.id}"><span>${c.name}</span><small>${c.id==='all'?products.length:products.filter(p=>p.category===c.id).length}</small></label>`).join('');
  $('#color-filters').innerHTML=Object.entries(colors).map(([name,color])=>`<label class="color-option"><input type="checkbox" name="color" value="${name}"><span class="swatch" style="background:${color}"></span>${name}</label>`).join('');
