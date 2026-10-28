@@ -1,5 +1,5 @@
 import {products,categories} from './catalog.js';
-import {articles} from './journal.js?v=20261027-10';
+import {articles} from './journal.js?v=20261028-1';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const yen=n=>'¥'+n.toLocaleString('ja-JP');
 function miniCard(p){return `<a class="selection-card" href="product.html?item=${p.id}"><div><img src="${esc(p.image)}" alt="${esc(p.name)}" width="450" height="450" loading="lazy">${p.tag?`<span>${esc(p.tag)}</span>`:''}<i aria-hidden="true">↗</i></div><small>${esc(categories.find(c=>c.id===p.category)?.name)}</small><h3>${esc(p.name)}</h3><p>${yen(p.price)} <small>税込</small></p></a>`}
@@ -11,10 +11,10 @@ export function renderStorefront(){
  if(view==='home'){
  // Category entrances and actual items come before long editorial sections.
  const hero=$('.hero'),category=$('.category-section'),journal=$('.journal-home'),spot=$('.spotlight'),stories=$('.stories');
- hero.after(category);
+ (document.querySelector('.experience-foot')||hero).after(category);
  const picks=[...products].sort((a,b)=>a.rank-b.rank).slice(0,8);
  category.insertAdjacentHTML('afterend',`<section class="home-selection"><div class="section-heading"><div><p class="eyebrow">THE MARKET EDIT</p><h2>今、気になるもの。</h2><p class="section-description">身につけるものから、部屋で使うものまで。</p></div><a class="text-link" href="catalog.html">商品をすべて見る <span>→</span></a></div><div class="selection-grid">${picks.map(miniCard).join('')}</div></section>`);
- const selection=$('.home-selection');if(journal)selection.after(journal);if(spot)(journal||selection).after(spot);if(stories)(spot||journal||selection).after(stories);
+ const selection=$('.home-selection');if(spot)selection.after(spot);if(journal)(spot||selection).after(journal);if(stories)(journal||spot||selection).after(stories);
  const latest=articles[0];
  $('.hero-copy .hero-secondary')?.remove();
  if(latest){$('.hero-copy>.primary').insertAdjacentHTML('afterend',`<a class="hero-secondary" href="article.html?id=${encodeURIComponent(latest.id)}">最新の特集を読む <span>↗</span></a>`);category.insertAdjacentHTML('beforebegin',`<a class="season-note" href="article.html?id=${encodeURIComponent(latest.id)}"><span>JOURNAL UPDATE</span><time>${esc(latest.date)}</time><strong>${esc(latest.title)}</strong><b aria-hidden="true">→</b></a>`)}

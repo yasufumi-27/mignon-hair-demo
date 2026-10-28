@@ -1,9 +1,10 @@
-import {renderCoupon} from './coupons.js?v=20261027-10';
-import {initInteractions,navigateSoft,openDialog,closeDialog} from './interaction.js?v=20261027-9';
-import {renderStorefront} from './storefront.js?v=20261027-10';
-import {loadLive,watchLive} from './live-store.js?v=20261027-10';
-import {initJournal,renderJournal} from './journal.js?v=20261027-10';
-import {initMotion} from './motion.js?v=20261027-8';
+import {initExperience} from './experience.js?v=20261028-1';
+import {renderCoupon} from './coupons.js?v=20261028-1';
+import {initInteractions,navigateSoft,openDialog,closeDialog,motionOff} from './interaction.js?v=20261028-1';
+import {renderStorefront} from './storefront.js?v=20261028-1';
+import {loadLive,watchLive} from './live-store.js?v=20261028-1';
+import {initJournal,renderJournal} from './journal.js?v=20261028-1';
+import {initMotion} from './motion.js?v=20261028-1';
 import {categories,colors,products,categoryName,filterProducts} from './catalog.js';
 await loadLive();
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
@@ -108,7 +109,7 @@ let galleryTimer;
 function startGallery(){
  clearInterval(galleryTimer);
  const gallery=$('#gallery');if(!gallery)return;
- let index=0,paused=matchMedia('(prefers-reduced-motion:reduce)').matches;
+ let index=0,paused=motionOff();
  const slides=[...gallery.querySelectorAll('.gallery-slide')];
  const show=n=>{index=(n+slides.length)%slides.length;slides.forEach((e,i)=>e.hidden=i!==index);gallery.querySelectorAll('[data-slide]').forEach((e,i)=>e.setAttribute('aria-pressed',String(i===index)));$('#gallery-count').textContent=`${index+1} / ${slides.length}`;};
  const toggle=()=>$('#gallery-pause').textContent=paused?'自動再生':'一時停止';
@@ -192,6 +193,7 @@ let cleanupMotion=initMotion();
 
 initJournal();
 renderStorefront();
+let cleanupExperience=initExperience();
 
 watchLive(()=>{
  const draft=draftFilters(),query=$('#search').value,searchCategory=$('#search-category').value,navX=$('#navigation').scrollLeft;
@@ -200,7 +202,7 @@ watchLive(()=>{
  buildControls();$('#navigation').insertAdjacentHTML('afterbegin','<button data-action="home">ホーム</button>');render();restoreDraft(draft);$('#search').value=query;$('#search-category').value=searchCategory;$('#navigation').scrollLeft=navX;
  if(route==='cart.html')renderCart();
  if(route==='product.html'){const id=new URLSearchParams(location.search).get('item');if(find(id)){detail(id);document.title=find(id).name+' | MIGNON MARKET'}else{clearInterval(galleryTimer);$('#detail-content').innerHTML='<h2>この商品は現在公開されていません</h2><a href="catalog.html">商品一覧へ</a>'}}
- cleanupMotion?.();cleanupMotion=initMotion();renderJournal();renderStorefront();save();
+ cleanupExperience?.();cleanupMotion?.();cleanupMotion=initMotion();renderJournal();renderStorefront();cleanupExperience=initExperience();save();
 });
 
 restoreView();

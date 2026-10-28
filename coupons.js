@@ -1,4 +1,4 @@
-import {API} from './live-store.js?v=20261027-10';
+import {API} from './live-store.js?v=20261028-1';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const yen=n=>'¥'+n.toLocaleString('ja-JP');
 let selected='';try{selected=sessionStorage.getItem('mignon-coupon')||''}catch{}
