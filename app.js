@@ -172,7 +172,7 @@ const mobile=matchMedia('(max-width:900px)');$('#filters').open=!mobile.matches;
 readURL();buildControls();save();render();
 const view=['campaigns.html','article.html'].includes(route)?'journal':route==='product.html'?'product':route==='cart.html'?'cart':isHome?'home':'catalog';
 document.body.dataset.view=view;
-$$('.hero,.benefit-strip,.category-section,.editorial-grid,.closing').forEach(e=>e.hidden=view!=='home');
+$$('.hero,.experience-foot,.benefit-strip,.category-section,.editorial-grid,.closing').forEach(e=>e.hidden=view!=='home');
 $('#catalog').hidden=view!=='catalog';
 if(view==='product'||view==='cart'){$('main').hidden=true;const pageDialog=$(view==='product'?'#detail-dialog':'#cart-dialog');$('footer').before(pageDialog);}
 $$('a.brand').forEach(e=>e.href='index.html');$('.skip').href=view==='catalog'?'#catalog':'catalog.html';
